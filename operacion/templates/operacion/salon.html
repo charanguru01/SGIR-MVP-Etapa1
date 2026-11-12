@@ -1,0 +1,24 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Plano de Mesas - SGIR{% endblock %}
+{% block content %}
+<div class="card">
+    <h2 style="margin-top:0;">Plano de Mesas — {{ usuario.plaza_asignada }}</h2>
+    <p>Seleccione una mesa para tomar pedido o gestionar productos enviados (RF-04).</p>
+    <div class="grid">
+        {% for mesa in mesas %}
+        <div class="card" style="border: 2px solid {% if mesa.estado == 'DISPONIBLE' %}#16a34a{% else %}#dc2626{% endif %};">
+            <h3 style="margin:0 0 0.4rem 0;">Mesa #{{ mesa.numero }}</h3>
+            <p style="margin:0 0 0.5rem 0; color:#4b5563;">Sector: {{ mesa.sector }} ({{ mesa.capacidad }} pers.)</p>
+            {% if mesa.estado == 'DISPONIBLE' %}
+                <span class="badge badge-ok">DISPONIBLE</span>
+            {% else %}
+                <span class="badge badge-busy">OCUPADA</span>
+            {% endif %}
+            <div style="margin-top:1rem;">
+                <a href="{% url 'tomar_pedido' mesa.id %}" class="btn btn-primary" style="width:100%;">Abrir Mesa</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

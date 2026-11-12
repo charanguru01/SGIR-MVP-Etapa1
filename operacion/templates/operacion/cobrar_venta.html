@@ -1,0 +1,42 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Precuenta y Pago Venta #{{ venta.id }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:620px; margin: 1.5rem auto;">
+    <h2 style="margin-top:0;">Precuenta — Mesa #{{ venta.mesa.numero }} (Venta #{{ venta.id }})</h2>
+    <table>
+        <thead><tr><th>Producto</th><th>Cant. Vigente</th><th>Precio Unit.</th><th>Subtotal</th></tr></thead>
+        <tbody>
+            {% for d in detalles %}
+            {% if d.cantidad_vigente > 0 %}
+            <tr>
+                <td>{{ d.producto.nombre }}</td>
+                <td>{{ d.cantidad_vigente }}</td>
+                <td>${{ d.precio_aplicado }}</td>
+                <td>${{ d.subtotal_vigente }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <p style="font-size:1.25rem; font-weight:700;">Total Consumo a Pagar: ${{ venta.saldo_pendiente }}</p>
+    <p style="color:#4b5563;">Propina sugerida (10%): ${{ propina_sugerida }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Medio de Pago</label>
+        <select name="medio_pago" required>
+            {% for cod, desc in medios_pago %}
+            <option value="{{ cod }}">{{ desc }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Importe Consumo ($)</label>
+        <input type="number" name="monto_consumo" value="{{ venta.saldo_pendiente }}" min="1" required>
+
+        <label>Importe Propina Separada ($) (RN-07)</label>
+        <input type="number" name="monto_propina" value="{{ propina_sugerida }}" min="0" required>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">Registrar Pago y Cerrar Venta</button>
+    </form>
+</div>
+{% endblock %}

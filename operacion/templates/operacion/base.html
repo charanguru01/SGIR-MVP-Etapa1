@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SGIR - Sistema de Gestión Integral para Restaurantes{% endblock %}</title>
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --accent: #d97706;
+            --success: #15803d;
+            --danger: #b91c1c;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); }
+        nav {
+            background: var(--primary); color: #fff; padding: 0.75rem 1.25rem;
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem;
+        }
+        nav a {
+            color: #fff; text-decoration: none; padding: 0.55rem 0.9rem; border-radius: 6px;
+            background: rgba(255,255,255,0.12); font-weight: 600; font-size: 0.95rem;
+        }
+        nav a:hover { background: rgba(255,255,255,0.25); }
+        .container { max-width: 1120px; margin: 1.25rem auto; padding: 0 1rem; }
+        .card {
+            background: var(--card); border-radius: 10px; padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1rem;
+        }
+        .btn {
+            display: inline-block; padding: 0.7rem 1.15rem; border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-warning { background: var(--accent); color: #fff; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+        .alert { padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 500; }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { padding: 0.65rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        th { background: #f9fafb; font-weight: 700; }
+        input, select {
+            width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 1rem; margin-top: 0.25rem; margin-bottom: 0.75rem;
+        }
+        .badge { padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-ok { background: #dcfce7; color: #166534; }
+        .badge-busy { background: #fee2e2; color: #991b1b; }
+        .badge-warn { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    {% if usuario %}
+    <nav>
+        <div><strong>SGIR LAN</strong> | {{ usuario.nombre }} ({{ usuario.rol.nombre }})</div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            {% if usuario.rol.codigo != 'CAJERO' %}
+                <a href="{% url 'salon' %}">Salón / Mesas</a>
+                <a href="{% url 'comandas' %}">Comandas</a>
+            {% endif %}
+            <a href="{% url 'caja' %}">Caja / Ventas</a>
+            {% if usuario.rol.codigo == 'ADMIN' %}
+                <a href="{% url 'administracion' %}">Administración</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" style="background:#b91c1c;">Salir</a>
+        </div>
+    </nav>
+    {% endif %}
+    <div class="container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

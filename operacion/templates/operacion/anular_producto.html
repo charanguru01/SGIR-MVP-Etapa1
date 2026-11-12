@@ -1,0 +1,39 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Anulación Autorizada CU-07 - SGIR{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px; margin: 1.5rem auto;">
+    <h2 style="margin-top:0; color:#b91c1c;">Anulación Supervisada de Producto (CU-07 / RF-17)</h2>
+    <p><strong>Mesa #{{ detalle.pedido.mesa.numero }}</strong> | Producto: <strong>{{ detalle.producto.nombre }}</strong> (Unidades vigentes: {{ detalle.cantidad_vigente }})</p>
+    <form method="post">
+        {% csrf_token %}
+        <label>Cantidad a Anular</label>
+        <input type="number" name="cantidad" min="1" max="{{ detalle.cantidad_vigente }}" value="1" required>
+
+        <label>Motivo Tipificado (RN-10)</label>
+        <select name="motivo" required>
+            {% for cod, desc in motivos %}
+            <option value="{{ cod }}">{{ desc }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Condición de Preparación (RN-11)</label>
+        <select name="tipo_salida" required>
+            {% for cod, desc in tipos_salida %}
+            <option value="{{ cod }}">{{ desc }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Observación Adicional</label>
+        <input type="text" name="observacion_motivo" placeholder="Detalle opcional del incidente">
+
+        <hr>
+        <p style="font-weight:700; color:#1e3a5f;">Autorización Obligatoria de Administrador</p>
+        <label>RUT Administrador</label>
+        <input type="text" name="rut_admin" placeholder="11.111.111-1" required>
+        <label>PIN Administrador</label>
+        <input type="password" name="pin_admin" maxlength="4" pattern="\d{4}" required>
+
+        <button type="submit" class="btn btn-danger" style="width:100%;">Autorizar Anulación y Notificar Estación</button>
+    </form>
+</div>
+{% endblock %}

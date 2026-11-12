@@ -1,0 +1,16 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Acceso SGIR - RUT y PIN{% endblock %}
+{% block content %}
+<div class="card" style="max-width:440px; margin: 3rem auto;">
+    <h2 style="margin-top:0; color:#1e3a5f;">Ingreso al Turno — SGIR</h2>
+    <p style="color:#4b5563;">Autenticación local en red interna (CU-02 / RNF-03).</p>
+    <form method="post">
+        {% csrf_token %}
+        <label><strong>RUT del Trabajador</strong></label>
+        <input type="text" name="rut" placeholder="Ej: 11.111.111-1" required autocomplete="off">
+        <label><strong>PIN de Acceso (4 dígitos)</strong></label>
+        <input type="password" name="pin" maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="••••" required>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Iniciar Sesión</button>
+    </form>
+</div>
+{% endblock %}

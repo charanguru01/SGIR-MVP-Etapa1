@@ -1,0 +1,103 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Mesa #{{ mesa.numero }} - Pedido{% endblock %}
+{% block content %}
+<div class="card">
+    <h2 style="margin-top:0;">Mesa #{{ mesa.numero }} ({{ mesa.sector }})</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="agregar">
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap:0.6rem;">
+            <div>
+                <label>Producto de Carta</label>
+                <select name="producto_id" required>
+                    {% for p in productos %}
+                    <option value="{{ p.id }}">[{{ p.categoria }}] {{ p.nombre }} — ${{ p.precio }} ({{ p.estacion.nombre }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Cantidad</label>
+                <input type="number" name="cantidad" value="1" min="1" max="50" required>
+            </div>
+            <div>
+                <label>Punto Cocción</label>
+                <select name="punto_coccion">
+                    <option value="">No aplica</option>
+                    <option value="A punto">A punto</option>
+                    <option value="Tres cuartos">Tres cuartos</option>
+                    <option value="Bien cocido">Bien cocido</option>
+                </select>
+            </div>
+            <div>
+                <label>Observación</label>
+                <input type="text" name="comentario" placeholder="Ej: Sin cebolla, hielo aparte">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">+ Agregar al Borrador</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Resumen del Pedido Antes de Enviar (RF-07 / RF-08)</h3>
+    {% if carrito %}
+    <table>
+        <thead><tr><th>Producto</th><th>Estación</th><th>Cant.</th><th>Indicaciones</th><th>Subtotal</th><th>Acción</th></tr></thead>
+        <tbody>
+            {% for it in carrito %}
+            <tr>
+                <td>{{ it.nombre }}</td>
+                <td>{{ it.estacion }}</td>
+                <td>{{ it.cantidad }}</td>
+                <td>{{ it.punto_coccion }} {{ it.comentario }}</td>
+                <td>${{ it.subtotal }}</td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="eliminar_item">
+                        <input type="hidden" name="item_uid" value="{{ it.item_uid }}">
+                        <button type="submit" class="btn btn-danger" style="padding:0.35rem 0.65rem; font-size:0.85rem;">Quitar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p style="font-size:1.2rem; font-weight:700;">Total Borrador: ${{ total_borrador }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="confirmar">
+        <input type="hidden" name="token_idempotencia" value="{{ token_idempotencia }}">
+        <button type="submit" class="btn btn-success">Confirmar y Enviar Comandas a Producción</button>
+    </form>
+    {% else %}
+    <p style="color:#6b7280;">No hay productos pendientes en el borrador actual.</p>
+    {% endif %}
+</div>
+
+{% if venta_abierta %}
+<div class="card">
+    <h3>Productos Ya Enviados a Producción — Venta Abierta #{{ venta_abierta.id }} (Total: ${{ venta_abierta.monto_total }})</h3>
+    <table>
+        <thead><tr><th>Pedido</th><th>Producto</th><th>Vigentes / Orig.</th><th>Indicaciones</th><th>Estado</th><th>Excepción CU-07</th></tr></thead>
+        <tbody>
+            {% for d in detalles_enviados %}
+            <tr>
+                <td>#{{ d.pedido.id }}</td>
+                <td>{{ d.producto.nombre }}</td>
+                <td>{{ d.cantidad_vigente }} / {{ d.cantidad }}</td>
+                <td>{{ d.punto_coccion }} {{ d.comentario }}</td>
+                <td><span class="badge {% if d.estado == 'ACTIVO' %}badge-ok{% else %}badge-warn{% endif %}">{{ d.estado }}</span></td>
+                <td>
+                    {% if d.cantidad_vigente > 0 %}
+                    <a href="{% url 'anular_producto' d.id %}" class="btn btn-warning" style="padding:0.35rem 0.65rem; font-size:0.85rem;">Anular (Admin)</a>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

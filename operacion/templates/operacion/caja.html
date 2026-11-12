@@ -1,0 +1,42 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Caja y Cierre de Ventas - SGIR{% endblock %}
+{% block content %}
+<div class="card">
+    <h2 style="margin-top:0;">Cuentas Abiertas en Salón (RF-13 / RF-14)</h2>
+    {% if ventas_abiertas %}
+    <table>
+        <thead><tr><th>Venta</th><th>Mesa</th><th>Total Consumo</th><th>Saldo Pendiente</th><th>Acción</th></tr></thead>
+        <tbody>
+            {% for v in ventas_abiertas %}
+            <tr>
+                <td>#{{ v.id }}</td>
+                <td>Mesa #{{ v.mesa.numero }} ({{ v.mesa.sector }})</td>
+                <td>${{ v.monto_total }}</td>
+                <td><strong>${{ v.saldo_pendiente }}</strong></td>
+                <td><a href="{% url 'cobrar_venta' v.id %}" class="btn btn-success">Precuenta y Cobro</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay ventas abiertas pendientes de cobro.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Historial Reciente de Ventas Cerradas</h3>
+    <table>
+        <thead><tr><th>Venta</th><th>Mesa</th><th>Total Consumo</th><th>Estado</th></tr></thead>
+        <tbody>
+            {% for v in ventas_cerradas %}
+            <tr>
+                <td>#{{ v.id }}</td>
+                <td>Mesa #{{ v.mesa.numero }}</td>
+                <td>${{ v.monto_total }}</td>
+                <td><span class="badge badge-ok">{{ v.estado }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

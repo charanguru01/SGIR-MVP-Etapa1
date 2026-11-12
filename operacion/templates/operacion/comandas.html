@@ -1,0 +1,35 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Comandas y Estado de Impresión - SGIR{% endblock %}
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <h2 style="margin:0;">Monitor de Comandas por Estación (RF-11 / RF-12)</h2>
+        {% if pendientes_count > 0 %}
+        <form method="post" action="{% url 'reintentar_comandas' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Reintentar Pendientes ({{ pendientes_count }})</button>
+        </form>
+        {% endif %}
+    </div>
+    <table>
+        <thead><tr><th>ID</th><th>Tipo</th><th>Estación</th><th>Mesa</th><th>Estado Impresión</th><th>Ticket</th></tr></thead>
+        <tbody>
+            {% for c in comandas %}
+            <tr>
+                <td>#{{ c.id }}</td>
+                <td>{{ c.get_tipo_documento_display }}</td>
+                <td><strong>{{ c.estacion.nombre }}</strong></td>
+                <td>Mesa {{ c.pedido.mesa.numero }}</td>
+                <td>
+                    <span class="badge {% if c.estado_impresion == 'CONFIRMADA' %}badge-ok{% else %}badge-busy{% endif %}">
+                        {{ c.estado_impresion }}
+                    </span>
+                    <div style="font-size:0.8rem; color:#4b5563;">{{ c.detalle_error }}</div>
+                </td>
+                <td><pre style="margin:0; font-size:0.8rem; background:#f8fafc; padding:0.4rem;">{{ c.contenido_ticket }}</pre></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

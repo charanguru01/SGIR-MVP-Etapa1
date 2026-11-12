@@ -1,0 +1,80 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Administración SGIR{% endblock %}
+{% block content %}
+<div class="card">
+    <h2 style="margin-top:0;">Gestión de Usuarios y Roles (RF-01 / RBAC)</h2>
+    <form method="post" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:0.6rem; align-items:end;">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear_usuario">
+        <div><label>Nombre Completo</label><input type="text" name="nombre" required></div>
+        <div><label>RUT</label><input type="text" name="rut" placeholder="44.444.444-4" required></div>
+        <div><label>PIN (4 dígitos)</label><input type="password" name="pin" maxlength="4" pattern="\d{4}" required></div>
+        <div>
+            <label>Rol</label>
+            <select name="rol_id">
+                {% for r in roles %}<option value="{{ r.id }}">{{ r.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div><label>Plaza Asignada</label><input type="text" name="plaza_asignada" value="Salón Principal"></div>
+        <div><button type="submit" class="btn btn-primary" style="margin-bottom:0.75rem;">Crear Usuario</button></div>
+    </form>
+    <table>
+        <thead><tr><th>Nombre</th><th>RUT</th><th>Rol</th><th>Plaza</th><th>Hash PIN (RNF-03)</th></tr></thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.rut }}</td>
+                <td>{{ u.rol.nombre }}</td>
+                <td>{{ u.plaza_asignada }}</td>
+                <td style="font-family:monospace; font-size:0.75rem;">{{ u.pin_hash|truncatechars:28 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>Estaciones e Impresoras Locales (RF-16 / Simulación Fallo RNF-07)</h3>
+    <table>
+        <thead><tr><th>Estación</th><th>Impresora</th><th>IP:Puerto LAN</th><th>Estado</th><th>Prueba Resiliencia</th></tr></thead>
+        <tbody>
+            {% for imp in impresoras %}
+            <tr>
+                <td>{{ imp.estacion.nombre }}</td>
+                <td>{{ imp.nombre_dispositivo }}</td>
+                <td>{{ imp.identificador_red }}</td>
+                <td><span class="badge {% if imp.operativa %}badge-ok{% else %}badge-busy{% endif %}">{% if imp.operativa %}OPERATIVA{% else %}FUERA DE LÍNEA{% endif %}</span></td>
+                <td>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="toggle_impresora">
+                        <input type="hidden" name="impresora_id" value="{{ imp.id }}">
+                        <button type="submit" class="btn btn-warning" style="padding:0.35rem 0.65rem; font-size:0.85rem;">Alternar Estado</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>Bitácora Inmutable de Anulaciones Autorizadas (RNF-09 / Ley N° 21.459)</h3>
+    <table>
+        <thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Motivo</th><th>Tipo Salida</th><th>Autorizador</th></tr></thead>
+        <tbody>
+            {% for a in anulaciones %}
+            <tr>
+                <td>{{ a.fecha_hora }}</td>
+                <td>{{ a.detalle_pedido.producto.nombre }}</td>
+                <td>{{ a.cantidad_anulada }}</td>
+                <td>{{ a.get_motivo_display }}</td>
+                <td>{{ a.get_tipo_salida_display }}</td>
+                <td>{{ a.autorizador.nombre }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
