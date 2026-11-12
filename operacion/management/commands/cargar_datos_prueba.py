@@ -34,9 +34,9 @@ class Command(BaseCommand):
         )
 
         usuarios_demo = [
-            ("Marcelo Moya", "11.111.111-1", "1234", rol_admin, "Salón Principal"),
-            ("Carlos Pérez", "22.222.222-2", "2345", rol_garzon, "Salón Principal"),
-            ("Ana Torres", "33.333.333-3", "3456", rol_cajero, "Caja Central"),
+            ("Marcelo Moya", "11111111-1", "1234", rol_admin, "Salón Principal"),
+            ("Carlos Pérez", "22222222-2", "2345", rol_garzon, "Salón Principal"),
+            ("Ana Torres", "33333333-3", "3456", rol_cajero, "Caja Central"),
         ]
         for nombre, rut, pin, rol, plaza in usuarios_demo:
             Usuario.objects.get_or_create(
